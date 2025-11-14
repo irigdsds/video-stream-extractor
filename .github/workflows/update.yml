@@ -1,0 +1,43 @@
+name: Atualizar links diretos
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"     # A cada 10 minutos
+  workflow_dispatch:            # Permite rodar manualmente
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v3
+
+      - name: Instalar yt-dlp
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          pip install yt-dlp
+
+      - name: Processar links
+        run: |
+          echo "[" > links.json
+          FIRST=true
+          while read -r url; do
+            if [ ! -z "$url" ]; then
+              direct=$(yt-dlp -g "$url" | head -n 1)
+              if [ "$FIRST" = true ]; then
+                FIRST=false
+              else
+                echo "," >> links.json
+              fi
+              printf '  { "original": "%s", "direct": "%s" }' "$url" "$direct" >> links.json
+            fi
+          done < links.txt
+          echo "]" >> links.json
+
+      - name: Salvar arquivo atualizado
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Atualizando links diretos"
+          file_pattern: links.json
