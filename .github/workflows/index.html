@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Abrir Vídeo Sempre Atualizado</title>
+<script>
+async function abrir() {
+    let res = await fetch("links.json?" + Date.now());
+    let data = await res.json();
+
+    let urlDireta = data[0].direct;
+
+    // Abrir em VLC mobile / Android TV
+    window.location.href =
+        "intent://" + urlDireta.replace("https://", "") +
+        "#Intent;scheme=https;package=org.videolan.vlc;end";
+}
+</script>
+</head>
+<body onload="abrir()" style="background:black;">
+</body>
+</html>
