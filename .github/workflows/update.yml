@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Necessário para permitir force-push
 
       - name: Instalar yt-dlp
         run: |
@@ -36,8 +38,10 @@ jobs:
           done < links.txt
           echo "]" >> links.json
 
-      - name: Salvar arquivo atualizado
+      - name: Commit e enviar arquivo
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Atualizando links diretos"
+          branch: main
           file_pattern: links.json
+          push_options: --force
